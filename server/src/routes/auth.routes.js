@@ -26,8 +26,8 @@ router.post("/register", async (req, res) => {
             },
         });
         res.status(201).json({ message: "User created successfully", userId: user.id });
-    } catch (error) {
-        console.error("Registration error:", error);
+    } catch (_error) {
+        console.error("Registration error:", _error);
         res.status(500).json({ error: "Error during registration" });
     }
 });
@@ -51,15 +51,15 @@ router.post("/login", async (req, res) => {
         }
 
         const secret = process.env.JWT_SECRET || "default_secret_key";
-        const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "1d" });
+        const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "7d" });
 
         res.json({
             message: "Login successful",
             token,
             user: { id: user.id, name: user.name, email: user.email }
         });
-    } catch (error) {
-        console.error("Login error:", error);
+    } catch (_error) {
+        console.error("Login error:", _error);
         res.status(500).json({ error: "Error during login" });
     }
 });

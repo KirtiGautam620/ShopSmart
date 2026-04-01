@@ -1,36 +1,53 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ProductDetailPage from './pages/ProductDetailPage';
+import CartPage from './pages/CartPage';
+import OrdersPage from './pages/OrdersPage';
+import AddProductPage from './pages/AddProductPage';
+import EditProductPage from './pages/EditProductPage';
+import { api } from './utils/api';
+import { isLoggedIn } from './utils/auth';
 
 function App() {
-    const [data, setData] = useState(null);
+  const [cartCount, setCartCount] = useState(0);
 
-    useEffect(() => {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        fetch(`${apiUrl}/api/health`)
-            .then(res => res.json())
-            .then(data => setData(data))
-            .catch(err => console.error('Error fetching health check:', err));
-    }, []);
+  const refreshCartCount = useCallback(() => {
+    if (!isLoggedIn()) { setCartCount(0); return; }
+    api.get('/api/cart')
+      .then(items => setCartCount(items.reduce((sum, i) => sum + i.quantity, 0)))
+      .catch(() => setCartCount(0));
+  }, []);
 
-    return (
-        <div className="container">
-            <h1>ShopSmart</h1>
-            <div className="card">
-                <h2>Backend Status</h2>
-                {data ? (
-                    <div>
-                        <p>Status: <span className="status-ok">{data.status}</span></p>
-                        <p>Message: {data.message}</p>
-                        <p>Timestamp: {data.timestamp}</p>
-                    </div>
-                ) : (
-                    <p>Loading backend status...</p>
-                )}
-            </div>
-            <p className="hint">
-                Edit <code>src/App.jsx</code> and save to test HMR
-            </p>
-        </div>
-    )
+  useEffect(() => { refreshCartCount(); }, []);
+
+  return (
+    <BrowserRouter>
+      <Navbar cartCount={cartCount} onLogout={() => setCartCount(0)} />
+      <Routes>
+        <Route path="/" element={<HomePage onAddToCart={refreshCartCount} />} />
+        <Route path="/login" element={<LoginPage onLogin={refreshCartCount} />} />
+        <Route path="/register" element={<RegisterPage onLogin={refreshCartCount} />} />
+        <Route path="/products/:id" element={<ProductDetailPage onAddToCart={refreshCartCount} />} />
+        <Route path="/cart" element={
+          <ProtectedRoute><CartPage onCartChange={refreshCartCount} /></ProtectedRoute>
+        } />
+        <Route path="/orders" element={
+          <ProtectedRoute><OrdersPage /></ProtectedRoute>
+        } />
+        <Route path="/add-product" element={
+          <ProtectedRoute><AddProductPage /></ProtectedRoute>
+        } />
+        <Route path="/products/:id/edit" element={
+          <ProtectedRoute><EditProductPage /></ProtectedRoute>
+        } />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

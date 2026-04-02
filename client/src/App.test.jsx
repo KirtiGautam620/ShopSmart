@@ -1,18 +1,17 @@
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import App from './App';
-import { describe, it, expect, vi } from 'vitest';
+beforeEach(() => {
+    globalThis.fetch = vi.fn(() =>
+        Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
+    );
+    localStorage.clear();
+});
 
 describe('App', () => {
-    it('renders ShopSmart title', () => {
-        // Mock fetch
-        global.fetch = vi.fn(() =>
-            Promise.resolve({
-                json: () => Promise.resolve({ status: 'ok', message: 'Test Msg', timestamp: 'now' })
-            })
-        );
-
+    it('renders SweetCrumbs brand', async () => {
         render(<App />);
-        const linkElement = screen.getByText(/ShopSmart/i);
-        expect(linkElement).toBeInTheDocument();
+        const brand = await screen.findAllByText(/SweetCrumbs/i);
+        expect(brand.length).toBeGreaterThan(0);
     });
 });

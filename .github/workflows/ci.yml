@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Continuous Integration (CI)
 
 on:
   push:
@@ -32,6 +32,9 @@ jobs:
     - name: Run Tests
       run: npm test
 
+    - name: Run Linter
+      run: npm run lint
+
     - name: Build Application
       run: npm run build
 
@@ -57,5 +60,11 @@ jobs:
     - name: Install Dependencies
       run: npm ci
 
-    - name: Run Linter
+    - name: Generate Prisma Client
+      run: npx prisma generate
+
+    - name: Run Tests
       run: npm test -- --passWithNoTests
+
+    - name: Run Linter
+      run: npm run lint

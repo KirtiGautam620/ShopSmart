@@ -1,9 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { isLoggedIn, logout, getUser } from '../utils/auth';
+import { isLoggedIn, logout } from '../utils/auth';
 
 export default function Navbar({ cartCount }) {
   const navigate = useNavigate();
-  const user = getUser();
 
   const handleLogout = () => {
     logout();

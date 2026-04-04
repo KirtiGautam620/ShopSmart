@@ -23,7 +23,8 @@ function App() {
       .catch(() => setCartCount(0));
   }, []);
 
-  useEffect(() => { refreshCartCount(); }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { refreshCartCount(); }, [refreshCartCount]);
 
   return (
     <BrowserRouter>

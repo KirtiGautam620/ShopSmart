@@ -1,5 +1,5 @@
 import request from 'supertest';
-import app from './app';
+import app from './app.js';
 
 describe('API Integration', () => {
     it('should return a 200 OK for the public products route', async () => {

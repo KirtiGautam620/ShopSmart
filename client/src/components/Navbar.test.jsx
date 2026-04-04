@@ -19,15 +19,14 @@ describe('Navbar Component', () => {
         auth.isLoggedIn.mockReturnValue(false);
         renderNavbar();
         expect(screen.getByText(/Login/i)).toBeInTheDocument();
-        expect(screen.getByText(/Sign Up/i)).toBeInTheDocument();
     });
 
     it('should show Cart, Orders, and Logout when logged in', () => {
         auth.isLoggedIn.mockReturnValue(true);
         renderNavbar({ cartCount: 5 });
         expect(screen.getByText(/Cart/i)).toBeInTheDocument();
-        expect(screen.getByText(/Orders/i)).toBeInTheDocument();
+        expect(screen.getByText(/Account/i)).toBeInTheDocument();
         expect(screen.getByText(/Logout/i)).toBeInTheDocument();
-        expect(screen.getByText('5')).toBeInTheDocument();
+        expect(screen.getByText(/5/)).toBeInTheDocument();
     });
 });

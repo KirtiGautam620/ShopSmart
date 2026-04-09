@@ -1,0 +1,11 @@
+services:
+  client:
+    build: ./client
+    ports:
+      - "8080:80"
+  server:
+    build: ./server
+    env_file:
+      - ./server/.env
+    ports:
+      - "5001:5001"

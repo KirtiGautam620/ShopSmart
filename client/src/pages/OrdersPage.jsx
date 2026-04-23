@@ -1,19 +1,41 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { getUser } from '../utils/auth';
-import { Link } from 'react-router-dom';
+import { getUser, logout } from '../utils/auth';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const user = getUser();
 
-  useEffect(() => {
-    api.get('/api/orders')
-      .then(setOrders)
-      .catch(console.error)
+  const fetchData = () => {
+    setLoading(true);
+    Promise.all([
+      api.get('/api/orders'),
+      api.get('/api/wishlist')
+    ]).then(([ordersData, wishlistData]) => {
+      setOrders(ordersData);
+      setWishlist(wishlistData);
+    }).catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const removeFromWishlist = async (id) => {
+    try {
+      await api.delete(`/api/wishlist/${id}`);
+      setWishlist(prev => prev.filter(i => i.id !== id));
+    } catch (error) { alert(error.message); }
+  };
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   if (loading) return <div className="spinner-wrap"><div className="spinner" /></div>;
 
@@ -24,24 +46,24 @@ export default function OrdersPage() {
     <div className="dash-layout">
       {/* ── Left Sidebar ── */}
       <aside className="dash-sidebar">
-        <div className="dash-nav-item active">
+        <Link to="/orders" className="dash-nav-item active">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
           Dashboard
-        </div>
-        <Link to="/" className="dash-nav-item">
+        </Link>
+        <Link to="/shop" className="dash-nav-item">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           Products
         </Link>
-        <div className="dash-nav-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          Messages
-        </div>
-        <div className="dash-nav-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          Settings
+        <Link to="/cart" className="dash-nav-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          My Bag
+        </Link>
+        <div className="dash-nav-item" onClick={handleLogout} style={{ marginTop: 'auto', color: 'var(--danger)', cursor: 'pointer' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
         </div>
 
-        <div className="dash-promo-card">
+        <div className="dash-promo-card" style={{ marginTop: '2rem' }}>
           <p style={{fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.8rem'}}>Upgrade to premium and get 50% discount</p>
           <button className="btn btn-primary btn-sm" style={{borderRadius: '100px', width: '100%'}}>Upgrade Now</button>
         </div>
@@ -60,48 +82,68 @@ export default function OrdersPage() {
           <div className="dash-banner-content">
             <h2>Easy Shopping Easy</h2>
             <p style={{color: '#64748b', marginBottom: '1.5rem', maxWidth: '400px'}}>Find your awesome experience while shopping with SweetCrumbs’s artisanal collection.</p>
-            <button className="btn btn-primary" style={{borderRadius: '100px'}}>Explore Now</button>
+            <button className="btn btn-primary" style={{borderRadius: '100px'}} onClick={() => navigate('/shop')}>Explore Now</button>
           </div>
           <div style={{fontSize: '5rem', opacity: 0.8}}>🛍️</div>
         </section>
 
-        <div className="section-header">
-          <h3 style={{fontWeight: 900}}>Recent Purchases</h3>
-          <span style={{fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 700}}>View All</span>
-        </div>
-
-        <div className="card" style={{padding: '0', overflow: 'hidden'}}>
-          {orders.length === 0 ? (
-            <div style={{padding: '3rem', textAlign: 'center', color: '#64748b'}}>No orders found yet.</div>
-          ) : (
-            <table style={{width: '100%', borderCollapse: 'collapse'}}>
-              <thead>
-                <tr style={{textAlign: 'left', borderBottom: '1px solid #f1f5f9'}}>
-                  <th style={{padding: '1.2rem', fontSize: '0.8rem', color: '#64748b'}}>Product</th>
-                  <th style={{padding: '1.2rem', fontSize: '0.8rem', color: '#64748b'}}>Quantity</th>
-                  <th style={{padding: '1.2rem', fontSize: '0.8rem', color: '#64748b'}}>Price</th>
-                  <th style={{padding: '1.2rem', fontSize: '0.8rem', color: '#64748b'}}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.slice(0, 4).flatMap(o => o.items).slice(0, 4).map((item, idx) => (
-                  <tr key={idx} style={{borderBottom: '1px solid #f1f5f9'}}>
-                    <td style={{padding: '1.2rem', fontWeight: 700}}>
-                      <div style={{display: 'flex', alignItems: 'center', gap: '0.8rem'}}>
-                        <div style={{width: '32px', height: '32px', background: '#f1f5f9', borderRadius: '8px', overflow: 'hidden'}}>
-                          <img src={item.product.image} alt="" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+            <section>
+                <div className="section-header">
+                    <h3 style={{fontWeight: 900}}>Recent Purchases</h3>
+                    <Link to="/orders" style={{fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 700}}>View All</Link>
+                </div>
+                <div className="card" style={{padding: '0', overflow: 'hidden', background: '#fff', borderRadius: '16px', border: '1px solid var(--border)'}}>
+                    {orders.length === 0 ? (
+                        <div style={{padding: '2rem', textAlign: 'center', color: '#64748b'}}>No orders yet.</div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {orders.slice(0, 3).flatMap(o => o.items).slice(0, 3).map((item, idx) => (
+                            <div key={idx} style={{ padding: '1rem', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                                    <div style={{width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '8px', overflow: 'hidden'}}>
+                                        <img src={item.product.image} alt="" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                                    </div>
+                                    <div style={{fontWeight: 700, fontSize: '0.9rem'}}>{item.product.name}</div>
+                                </div>
+                                <div style={{fontWeight: 800}}>₹{item.price.toFixed(2)}</div>
+                            </div>
+                        ))}
                         </div>
-                        {item.product.name}
-                      </div>
-                    </td>
-                    <td style={{padding: '1.2rem', color: '#64748b'}}>{item.quantity} sold</td>
-                    <td style={{padding: '1.2rem', fontWeight: 800}}>₹{item.price.toFixed(2)}</td>
-                    <td style={{padding: '1.2rem'}}><span className="badge-dash">Completed</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                    )}
+                </div>
+            </section>
+
+            <section>
+                <div className="section-header">
+                    <h3 style={{fontWeight: 900}}>My Wishlist</h3>
+                    <span style={{fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 700}}>Explore</span>
+                </div>
+                <div className="card" style={{padding: '0', overflow: 'hidden', background: '#fff', borderRadius: '16px', border: '1px solid var(--border)'}}>
+                    {wishlist.length === 0 ? (
+                        <div style={{padding: '2rem', textAlign: 'center', color: '#64748b'}}>Wishlist is empty.</div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {wishlist.slice(0, 3).map((item, idx) => (
+                            <div key={idx} style={{ padding: '1rem', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                                    <div style={{width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '8px', overflow: 'hidden'}}>
+                                        <img src={item.product.image} alt="" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                                    </div>
+                                    <div style={{fontWeight: 700, fontSize: '0.9rem'}}>{item.product.name}</div>
+                                </div>
+                                <button 
+                                    onClick={() => removeFromWishlist(item.id)}
+                                    style={{ color: 'var(--danger)', fontWeight: 700, fontSize: '0.8rem', background: 'none' }}
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                        </div>
+                    )}
+                </div>
+            </section>
         </div>
       </main>
 

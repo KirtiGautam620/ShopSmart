@@ -12,10 +12,11 @@ export default function Navbar({ cartCount }) {
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <Link to="/" className="navbar-brand">SweetCrumbs</Link>
+        <Link to="/" className="navbar-brand">ShopSmart</Link>
 
         <div className="navbar-links">
-          <Link to="/" className="nav-link">Shop</Link>
+          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/shop" className="nav-link">Shop</Link>
           {isLoggedIn() ? (
             <>
               <Link to="/orders" className="nav-link">Account</Link>

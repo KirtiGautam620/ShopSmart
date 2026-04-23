@@ -4,7 +4,7 @@ import { api } from '../utils/api';
 import { isLoggedIn } from '../utils/auth';
 import ProductCard from '../components/ProductCard';
 
-const CATEGORIES = ['All', 'Celebration Cakes', 'Pastries', 'Cupcakes', 'Wedding Cakes', 'Macarons', 'Gifts'];
+const CATEGORIES = ['All', 'Classic Flavors', 'Premium Tubs', 'Dairy-Free', 'Exotic', 'Fruit Specials', 'Limited Edition'];
 
 export default function HomePage({ onAddToCart }) {
   const [products, setProducts] = useState([]);
@@ -15,7 +15,7 @@ export default function HomePage({ onAddToCart }) {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    if (category !== 'All') params.set('category', category.toLowerCase());
+    if (category !== 'All') params.set('category', category);
     if (search) params.set('search', search);
     api.get(`/api/products?${params}`)
       .then(setProducts)
@@ -40,7 +40,7 @@ export default function HomePage({ onAddToCart }) {
           <span className="product-category" style={{marginBottom: '1rem', display: 'block'}}>Chill & Indulge</span>
           <h1 style={{fontSize: '4rem', fontWeight: 950, color: 'var(--text)', marginBottom: '1rem', lineHeight: 1.1}}>Freshly Scooped Happiness</h1>
           <p style={{fontSize: '1.25rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto 2.5rem'}}>Diving into the creamy goodness of our classic and premium flavors. Made with love, fresh ingredients, and a sprinkle of joy.</p>
-          <button className="btn btn-primary" onClick={() => navigate('/products')}>Shop Now</button>
+          <button className="btn btn-primary" onClick={() => navigate('/shop')}>Shop Now</button>
         </div>
       </div>
 

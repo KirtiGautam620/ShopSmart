@@ -17,7 +17,16 @@ model User {
   password   String
   createdAt  DateTime    @default(now())
   cartItems  CartItem[]
+  wishlist   WishlistItem[]
   orders     Order[]
+}
+
+model WishlistItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
 }
 
 model Product {
@@ -30,6 +39,7 @@ model Product {
   stock       Int         @default(100)
   createdAt   DateTime    @default(now())
   cartItems   CartItem[]
+  wishlist    WishlistItem[]
   orderItems  OrderItem[]
 }
 

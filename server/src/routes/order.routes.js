@@ -15,10 +15,13 @@ router.post("/", async (req, res) => {
             return res.status(400).json({ error: "Cart is empty" });
         }
 
-        const total = cartItems.reduce(
+        const subtotal = cartItems.reduce(
             (sum, item) => sum + item.product.price * item.quantity,
             0
         );
+        const discount = req.body.discount || 0;
+        const total = Math.max(0, subtotal - discount + 10); // +10 shipping
+
         const order = await prisma.order.create({
             data: {
                 userId: req.user.userId,

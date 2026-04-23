@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
+import ShopPage from './pages/ShopPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -31,6 +32,7 @@ function App() {
       <Navbar cartCount={cartCount} onLogout={() => setCartCount(0)} />
       <Routes>
         <Route path="/" element={<HomePage onAddToCart={refreshCartCount} />} />
+        <Route path="/shop" element={<ShopPage onAddToCart={refreshCartCount} />} />
         <Route path="/login" element={<LoginPage onLogin={refreshCartCount} />} />
         <Route path="/register" element={<RegisterPage onLogin={refreshCartCount} />} />
         <Route path="/products/:id" element={<ProductDetailPage onAddToCart={refreshCartCount} />} />

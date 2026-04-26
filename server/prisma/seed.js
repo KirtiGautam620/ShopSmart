@@ -4,9 +4,11 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('🧹 Cleaning up old data...');
+  await prisma.wishlistItem.deleteMany({});
   await prisma.cartItem.deleteMany({});
   await prisma.orderItem.deleteMany({});
   await prisma.order.deleteMany({});
+  await prisma.user.deleteMany({});
   await prisma.product.deleteMany({});
 
   console.log('🍦 Seeding Gourmet Ice Cream products...');

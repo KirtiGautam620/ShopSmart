@@ -1,40 +1,40 @@
 #!/bin/bash
 set -e
-APP_DIR="/home/ubuntu/ShopSmart"
-REPO_URL="https://github.com/KirtiGautam620/ShopSmart.git"
 
-echo "Starting Idempotent Deployment..."
+# Dynamically get AWS Details
+AWS_REGION=$(aws configure get region || echo "us-east-1")
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-mkdir -p "$APP_DIR"
-cd "$APP_DIR"
+CLIENT_REPO="shopsmart-client"
+SERVER_REPO="shopsmart-server"
 
-if [ -d ".git" ]; then
-    echo "Updating existing repository..."
-    git fetch --all
-    git reset --hard origin/main
-else
-    echo "Cloning repository for the first time..."
-    git clone "$REPO_URL" .
-fi
+echo "Using Registry: $ECR_REGISTRY"
 
-echo "Setting up Backend..."
-cd server
-npm install
-npx prisma generate
-npx prisma db push --accept-data-loss
+echo "Logging into Amazon ECR..."
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
 
-echo "Setting up Frontend..."
-cd ../client
-npm install
-npm run build
+echo "Stopping existing containers..."
+docker stop $CLIENT_REPO $SERVER_REPO 2>/dev/null || true
+docker rm $CLIENT_REPO $SERVER_REPO 2>/dev/null || true
 
-echo "Restarting services..."
+echo "Pulling latest images from ECR..."
+docker pull $ECR_REGISTRY/$CLIENT_REPO:latest
+docker pull $ECR_REGISTRY/$SERVER_REPO:latest
 
-if command -v pm2 > /dev/null; then
-    pm2 reload all || pm2 start ../server/src/app.js --name "shopsmart-api"
-else
-    pkill -f "node.*server/src/app.js" || true
-    nohup npm run dev --prefix ../server > server.log 2>&1 &
-fi
+echo "Starting ShopSmart Server..."
+docker run -d \
+  --name $SERVER_REPO \
+  -p 5001:5001 \
+  --restart always \
+  $ECR_REGISTRY/$SERVER_REPO:latest
 
-echo "Deployment Complete!"
+echo "Starting ShopSmart Client (Nginx)..."
+docker run -d \
+  --name $CLIENT_REPO \
+  -p 80:80 \
+  --restart always \
+  $ECR_REGISTRY/$CLIENT_REPO:latest
+
+echo "Deployment Complete! Cleaning up old images..."
+docker image prune -f

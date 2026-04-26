@@ -9,9 +9,10 @@ beforeEach(() => {
 });
 
 describe('App', () => {
-    it('renders SweetCrumbs brand', async () => {
+    it('renders ShopSmart brand', async () => {
         render(<App />);
-        const brand = await screen.findAllByText(/SweetCrumbs/i);
+        const brand = await screen.findAllByText(/ShopSmart/i);
         expect(brand.length).toBeGreaterThan(0);
     });
+
 });

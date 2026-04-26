@@ -19,7 +19,9 @@ export default function ShopPage({ onAddToCart }) {
   const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true); // Rely on initial state or set in action handlers
+
+
     const params = new URLSearchParams();
     if (selectedCategories.length > 0) {
         params.set('category', selectedCategories[0]);
@@ -37,10 +39,12 @@ export default function ShopPage({ onAddToCart }) {
   }, [selectedCategories, search, priceRange]);
 
   const handleCategoryToggle = (cat) => {
+    setLoading(true);
     setSelectedCategories(prev => 
       prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
     );
   };
+
 
   const handleAddToCart = async (product) => {
     if (!isLoggedIn()) { navigate('/login'); return; }
@@ -76,6 +80,22 @@ export default function ShopPage({ onAddToCart }) {
           {/* Sidebar */}
           <aside className="filter-sidebar">
             <div className="filter-group">
+              <span className="filter-group-title">Search Products</span>
+              <div className="dash-search" style={{ position: 'relative', marginBottom: '1rem' }}>
+                <input 
+                  type="text" 
+                  placeholder="Search..." 
+                  value={search} 
+                  onChange={(e) => {
+                    setLoading(true);
+                    setSearch(e.target.value);
+                  }}
+                  style={{ width: '100%', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--border)' }}
+                />
+              </div>
+            </div>
+            <div className="filter-group">
+
               <span className="filter-group-title">By Categories</span>
               <div className="filter-options-list">
                 {CATEGORIES.map(cat => (
@@ -99,8 +119,12 @@ export default function ShopPage({ onAddToCart }) {
                   className="range-slider" 
                   min="0" max="1000" 
                   value={priceRange} 
-                  onChange={(e) => setPriceRange(e.target.value)}
+                  onChange={(e) => {
+                    setLoading(true);
+                    setPriceRange(e.target.value);
+                  }}
                 />
+
                 <div className="price-labels">
                   <span>₹0</span>
                   <span>₹{priceRange}</span>

@@ -5,8 +5,8 @@ COPY prisma ./prisma/
 RUN npm ci
 COPY . .
 RUN npx prisma generate
-COPY . .
 FROM node:22-alpine
+
 
 WORKDIR /app
 COPY --from=builder /app/package*.json ./

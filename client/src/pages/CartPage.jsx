@@ -86,7 +86,7 @@ export default function CartPage({ onCartChange }) {
         {items.length === 0 ? (
           <div className="empty-state">
             <h3>Your bag is empty</h3>
-            <p>Looks like you haven't added any sweet treats yet!</p>
+            <p>Looks like you haven&apos;t added any sweet treats yet!</p>
             <button className="btn btn-primary" style={{ marginTop: '2rem' }} onClick={() => navigate('/shop')}>
               Explore Shop
             </button>

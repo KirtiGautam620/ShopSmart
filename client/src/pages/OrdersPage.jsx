@@ -10,7 +10,8 @@ export default function OrdersPage() {
   const user = getUser();
 
   const fetchData = () => {
-    setLoading(true);
+    // setLoading(true);
+
     Promise.all([
       api.get('/api/orders'),
       api.get('/api/wishlist')

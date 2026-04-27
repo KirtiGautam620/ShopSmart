@@ -22,9 +22,13 @@ echo "Pulling latest images from ECR..."
 docker pull $ECR_REGISTRY/$CLIENT_REPO:latest
 docker pull $ECR_REGISTRY/$SERVER_REPO:latest
 
+echo "Setting up Docker network..."
+docker network create shopsmart-net 2>/dev/null || true
+
 echo "Starting ShopSmart Server..."
 docker run -d \
   --name $SERVER_REPO \
+  --network shopsmart-net \
   -p 5001:5001 \
   --restart always \
   $ECR_REGISTRY/$SERVER_REPO:latest
@@ -32,6 +36,8 @@ docker run -d \
 echo "Starting ShopSmart Client (Nginx)..."
 docker run -d \
   --name $CLIENT_REPO \
+  --network shopsmart-net \
+  -e API_URL=http://$SERVER_REPO:5001 \
   -p 80:80 \
   --restart always \
   $ECR_REGISTRY/$CLIENT_REPO:latest

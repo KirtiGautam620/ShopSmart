@@ -8,6 +8,7 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_CLIENT_REPOSITORY: shopsmart-client
   ECR_SERVER_REPOSITORY: shopsmart-server
+  BACKEND_URL: ${{ secrets.BACKEND_URL }}
 
 jobs:
   build:
@@ -35,7 +36,9 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_CLIENT_REPOSITORY:$IMAGE_TAG ./client
+        docker build \
+          --build-arg VITE_API_URL=${{ secrets.BACKEND_URL }} \
+          -t $ECR_REGISTRY/$ECR_CLIENT_REPOSITORY:$IMAGE_TAG ./client
         docker tag $ECR_REGISTRY/$ECR_CLIENT_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_CLIENT_REPOSITORY:latest
         docker push $ECR_REGISTRY/$ECR_CLIENT_REPOSITORY:latest
 

@@ -17,4 +17,4 @@ ENV NODE_ENV=production
 
 EXPOSE 5001
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && npm start"]
+CMD ["sh", "-c", "if [ -z \"$DATABASE_URL\" ]; then echo \"WARNING: DATABASE_URL is not set. Prisma operations may fail.\"; fi && npx prisma migrate deploy && npx prisma db seed && npm start"]

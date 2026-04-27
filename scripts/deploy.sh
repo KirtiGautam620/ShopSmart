@@ -30,6 +30,8 @@ docker run -d \
   --name $SERVER_REPO \
   --network shopsmart-net \
   -p 5001:5001 \
+  -e DATABASE_URL="file:/app/prisma/dev.db" \
+  -e JWT_SECRET="${JWT_SECRET:-shopsmartsecret}" \
   --restart always \
   $ECR_REGISTRY/$SERVER_REPO:latest
 
